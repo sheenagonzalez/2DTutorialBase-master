@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,6 +29,11 @@ public class PlayerController : MonoBehaviour
     Animator anim;
     #endregion
 
+    #region Health_variables
+    public float maxHealth;
+    float currHealth;
+    #endregion
+
     #region Unity_functions
     private void Awake() {
         PlayerRB = GetComponent<Rigidbody2D>();
@@ -35,6 +41,8 @@ public class PlayerController : MonoBehaviour
         attackTimer = 0;
 
         anim = GetComponent<Animator>();
+
+        currHealth = maxHealth;
     }
 
     private void Update() {
@@ -103,6 +111,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log(hit.transform.name);
             if (hit.transform.CompareTag("Enemy")) {
                 Debug.Log("Tons of damage");
+                hit.transform.GetComponent<Enemy>().TakeDamage(Damage);
             }
         }
         yield return new WaitForSeconds(hitboxTiming);
@@ -110,5 +119,39 @@ public class PlayerController : MonoBehaviour
 
         yield return null;
     }
+    #endregion
+
+    #region Health_functions
+
+    // Take damage based on value param passed in by caller
+    public void TakeDamage(float value) {
+        // Decrement health
+        currHealth -= value;
+        Debug.Log("Health is now " + currHealth.ToString());
+
+        // Change UI
+
+        // Check if dead
+        if (currHealth <= 0) {
+            Die();
+        }
+    }
+
+    // Heals player based on value param passed in by caller
+    public void Heal(float value) {
+        // Increment health by value
+        currHealth += value;
+        currHealth = Mathf.Min(currHealth, maxHealth);
+        Debug.Log("Health is now " + currHealth.ToString());
+    }
+
+    // Destroys player object and triggers end scene stuff
+    private void Die() {
+        // Destroy this object
+        Destroy(this.gameObject);
+
+        // Trigger anything to end the game, find GameManager and Lose game
+    }
+        
     #endregion
 }
